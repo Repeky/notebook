@@ -9,7 +9,7 @@ int main(int argc, char *argv[]) {
     if (argc > 1) {
         mainWindow.openFile(QString::fromUtf8(argv[1]));
     } else {
-        mainWindow.newFileWithExtension("txt"); // Устанавливаем расширение по умолчанию
+        mainWindow.newFileWithExtension("txt");
     }
 
     mainWindow.show();

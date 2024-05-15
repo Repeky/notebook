@@ -16,7 +16,8 @@ find_package(Qt6 COMPONENTS
 
 add_executable(code_editor main.cpp
         mainwindow.h
-        mainwindow.cpp)
+        mainwindow.cpp
+        resources.qrc)
 target_link_libraries(code_editor
         Qt::Core
         Qt::Gui

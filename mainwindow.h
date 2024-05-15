@@ -9,18 +9,26 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QStatusBar>
+#include <QWheelEvent>
+#include <QCloseEvent>
+#include <QIcon>
 
 class MainWindow : public QMainWindow {
 Q_OBJECT
 
 public:
-    MainWindow(QWidget *parent = nullptr);
+    explicit MainWindow(QWidget *parent = nullptr);
 
     ~MainWindow();
 
     void openFile(const QString &fileName);
 
-    void newFileWithExtension(const QString &extension);  // Новая функция
+    void newFileWithExtension(const QString &extension);
+
+protected:
+    void wheelEvent(QWheelEvent *event) override;
+
+    void closeEvent(QCloseEvent *event) override;
 
 private slots:
 
@@ -41,8 +49,11 @@ private:
 
     void createToolBars();
 
+    bool maybeSave();
+
     QTextEdit *textEdit;
     QString currentFile;
+    bool isTextChanged;
 
     QMenu *fileMenu;
     QToolBar *fileToolBar;
@@ -55,4 +66,4 @@ private:
     QAction *undoAct;
 };
 
-#endif // MAINWINDOW_H
+#endif

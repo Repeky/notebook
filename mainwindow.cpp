@@ -1,7 +1,14 @@
 #include "mainwindow.h"
+#include <QStandardPaths>
 
-MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), textEdit(new QTextEdit(this)) {
+MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), textEdit(new QTextEdit(this)), isTextChanged(false) {
     setCentralWidget(textEdit);
+    setWindowIcon(QIcon(":/img/icon-book.png"));
+
+    setMinimumSize(800, 600);
+    resize(1024, 768);
+
+    connect(textEdit, &QTextEdit::textChanged, [this]() { isTextChanged = true; });
 
     createActions();
     createMenus();
@@ -52,19 +59,27 @@ void MainWindow::createToolBars() {
 }
 
 void MainWindow::newFile() {
-    textEdit->clear();
-    currentFile.clear();
+    if (maybeSave()) {
+        textEdit->clear();
+        currentFile.clear();
+        isTextChanged = false;
+    }
 }
 
 void MainWindow::newFileWithExtension(const QString &extension) {
-    textEdit->clear();
-    currentFile = QString("untitled.%1").arg(extension);
+    if (maybeSave()) {
+        textEdit->clear();
+        currentFile = QString("untitled.%1").arg(extension);
+        isTextChanged = false;
+    }
 }
 
 void MainWindow::openFile() {
-    QString fileName = QFileDialog::getOpenFileName(this);
-    if (!fileName.isEmpty()) {
-        openFile(fileName);
+    if (maybeSave()) {
+        QString fileName = QFileDialog::getOpenFileName(this);
+        if (!fileName.isEmpty()) {
+            openFile(fileName);
+        }
     }
 }
 
@@ -73,6 +88,7 @@ void MainWindow::openFile(const QString &fileName) {
     if (file.open(QFile::ReadOnly | QFile::Text)) {
         textEdit->setPlainText(file.readAll());
         currentFile = fileName;
+        isTextChanged = false;
         statusBar()->showMessage(tr("File loaded"), 2000);
     } else {
         QMessageBox::warning(this, tr("Error"), tr("Could not open file"));
@@ -86,6 +102,7 @@ void MainWindow::saveFile() {
         QFile file(currentFile);
         if (file.open(QFile::WriteOnly | QFile::Text)) {
             file.write(textEdit->toPlainText().toUtf8());
+            isTextChanged = false;
             statusBar()->showMessage(tr("File saved"), 2000);
         } else {
             QMessageBox::warning(this, tr("Error"), tr("Could not save file"));
@@ -94,7 +111,9 @@ void MainWindow::saveFile() {
 }
 
 void MainWindow::saveFileAs() {
-    QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"), "", tr("Text Files (*.txt);;All Files (*)"));
+    QString defaultDir = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"), defaultDir + "/untitled.txt",
+                                                    tr("Text Files (*.txt);;All Files (*)"));
     if (!fileName.isEmpty()) {
         currentFile = fileName;
         saveFile();
@@ -103,4 +122,40 @@ void MainWindow::saveFileAs() {
 
 void MainWindow::undo() {
     textEdit->undo();
+}
+
+void MainWindow::wheelEvent(QWheelEvent *event) {
+    if (event->modifiers() == Qt::ControlModifier) {
+        if (event->angleDelta().y() > 0) {
+            textEdit->zoomIn();
+        } else {
+            textEdit->zoomOut();
+        }
+        event->accept();
+    } else {
+        QMainWindow::wheelEvent(event);
+    }
+}
+
+void MainWindow::closeEvent(QCloseEvent *event) {
+    if (maybeSave()) {
+        event->accept();
+    } else {
+        event->ignore();
+    }
+}
+
+bool MainWindow::maybeSave() {
+    if (isTextChanged) {
+        QMessageBox::StandardButton ret = QMessageBox::warning(this, tr("Application"),
+                                                               tr("The document has been modified.\nDo you want to save your changes?"),
+                                                               QMessageBox::Save | QMessageBox::Discard |
+                                                               QMessageBox::Cancel);
+        if (ret == QMessageBox::Save) {
+            return saveFile(), true;
+        } else if (ret == QMessageBox::Cancel) {
+            return false;
+        }
+    }
+    return true;
 }
