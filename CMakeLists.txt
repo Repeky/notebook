@@ -14,9 +14,16 @@ find_package(Qt6 COMPONENTS
         Widgets
         REQUIRED)
 
-add_executable(code_editor main.cpp
-        mainwindow.h
-        mainwindow.cpp
+if (WIN32)
+    set(APP_ICON_RESOURCE_WINDOWS "${CMAKE_SOURCE_DIR}/resources.rc")
+    add_executable(TextEditor WIN32 src/main.cpp src/mainwindow.cpp resources.qrc ${APP_ICON_RESOURCE_WINDOWS})
+else()
+    add_executable(TextEditor src/main.cpp src/mainwindow.cpp resources.qrc)
+endif()
+
+add_executable(code_editor src/main.cpp
+        include/mainwindow.h
+        src/mainwindow.cpp
         resources.qrc)
 target_link_libraries(code_editor
         Qt::Core

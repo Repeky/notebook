@@ -55,15 +55,15 @@ private:
     QString currentFile;
     bool isTextChanged;
 
-    QMenu *fileMenu;
-    QToolBar *fileToolBar;
+    QMenu *fileMenu{};
+    QToolBar *fileToolBar{};
 
-    QAction *newAct;
-    QAction *openAct;
-    QAction *saveAct;
-    QAction *saveAsAct;
-    QAction *exitAct;
-    QAction *undoAct;
+    QAction *newAct{};
+    QAction *openAct{};
+    QAction *saveAct{};
+    QAction *saveAsAct{};
+    QAction *exitAct{};
+    QAction *undoAct{};
 };
 
 #endif
