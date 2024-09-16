@@ -31,6 +31,8 @@ target_link_libraries(code_editor
         Qt::Widgets
 )
 
+include_directories(include)
+
 if (WIN32 AND NOT DEFINED CMAKE_TOOLCHAIN_FILE)
     set(DEBUG_SUFFIX)
     if (MSVC AND CMAKE_BUILD_TYPE MATCHES "Debug")

@@ -1,4 +1,4 @@
-#include "../include/mainwindow.h"
+#include <mainwindow.h>
 #include <QStandardPaths>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), textEdit(new QTextEdit(this)), isTextChanged(false) {
